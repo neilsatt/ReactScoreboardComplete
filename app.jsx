@@ -42,7 +42,6 @@ var Stopwatch = React.createClass({
         elapsedTime: this.state.elapsedTime + (now - this.state.previousTime),
       });
     }
-    console.log('onTick');
   },
 
   onStart: function() {
