@@ -1,4 +1,4 @@
-var PLAYERS = [
+let PLAYERS = [
   {
     name: "Mick",
     score: 0,
@@ -21,13 +21,13 @@ var PLAYERS = [
   },
 ];
 
-var nextId = 5;
+let nextId = 5;
 
 /*
     Form where user enters new name 
 */
 
-var AddPlayerForm = React.createClass( {
+let AddPlayerForm = React.createClass( {
     propTypes: {
         onAdd: React.PropTypes.func.isRequired,
     },
@@ -66,8 +66,8 @@ var AddPlayerForm = React.createClass( {
 */
 
 function Stats(props){
-    var totalPlayers = props.players.length;
-    var totalPoints = props.players.reduce(function(total, player){
+    let totalPlayers = props.players.length;
+    let totalPoints = props.players.reduce(function(total, player){
         return total + player.score;
     },0);
 
@@ -87,6 +87,8 @@ function Stats(props){
     )
 }
 
+/* Header */
+
 function Header(props) {
   return (
     <div className="header">
@@ -102,10 +104,8 @@ Header.propTypes = {
 };
 
 
-/* Revert the counter back into a functional component
-   and relocate the state up into the application
-
-   A stateless component
+/* 
+   Counter component 
 */
 
 function Counter(props){
@@ -124,6 +124,10 @@ Counter.propTypes = {
     score: React.PropTypes.number.isRequired,
     onChange: React.PropTypes.func.isRequired,
 }
+
+/* 
+   Player component 
+*/
 
 function Player(props) {
   return (
@@ -148,11 +152,10 @@ Player.propTypes = {
 
 
 /*
-Convert app back into a stateful component that holds app state
-    This is where we manage state, because players can Change
+  Main Application Definition with Application Methods 
 */
 
-var Application = React.createClass({
+let Application = React.createClass({
      propTypes: {
       title: React.PropTypes.string,
       initialPlayers: React.PropTypes.arrayOf(React.PropTypes.shape({
