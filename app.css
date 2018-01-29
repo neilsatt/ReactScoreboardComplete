@@ -217,3 +217,10 @@ body {
     color: #fafafa;
     cursor: pointer;
   }
+#instructions {
+    color: grey;
+    font-size: 12px;
+    margin-bottom: 6px;
+    text-transform: none;
+    text-align: center;
+}
