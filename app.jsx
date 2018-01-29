@@ -1,151 +1,97 @@
 var PLAYERS = [
   {
-    name: "Michael Jordan",
-    score: 31,
+    name: "Mick",
+    score: 0,
     id: 1,
   },
   {
-    name: "Pete Maravich",
-    score: 35,
+    name: "Craig",
+    score: 0,
     id: 2,
   },
   {
-    name: "Nate Archibald",
-    score: 42,
+    name: "Dorothy",
+    score: 0,
     id: 3,
   },
+  {
+    name: "Leslie",
+    score: 0,
+    id: 4,
+  },
 ];
-var nextId = 4;
 
-var Stopwatch = React.createClass({
-  getInitialState: function() {
-    return {
-      running: false,
-      elapsedTime: 0,
-      previousTime: 0,
-    }
-  },
+var nextId = 5;
 
-  componentDidMount: function() {
-    this.interval = setInterval(this.onTick, 100);
-  },
+/*
+    Form where user enters new name 
+*/
 
-  componentWillUnmount: function() {
-    clearInterval(this.interval);
-  },
+var AddPlayerForm = React.createClass( {
+    propTypes: {
+        onAdd: React.PropTypes.func.isRequired,
+    },
 
-  onTick: function() {
-    if (this.state.running) {
-      var now = Date.now();
-      this.setState({
-        previousTime: now,
-        elapsedTime: this.state.elapsedTime + (now - this.state.previousTime),
-      });
-    }
-  },
+    getInitialState: function() {
+        return {
+            name: "",
+        };
+    },
 
-  onStart: function() {
-    this.setState({
-      running: true,
-      previousTime: Date.now(),
-    });
-  },
+    onNameChange: function(e){
+        this.setState({name: e.target.value});
+    },
 
-  onStop: function() {
-    this.setState({ running: false });
-  },
-
-  onReset: function() {
-    this.setState({
-      elapsedTime: 0,
-      previousTime: Date.now(),
-    });
+    onSubmit: function(e){
+     e.preventDefault();
+     this.props.onAdd(this.state.name);
+     this.setState({name: ""});
   },
 
   render: function() {
-    var seconds = Math.floor(this.state.elapsedTime / 1000);
-    return (
-      <div className="stopwatch">
-        <h2>Stopwatch</h2>
-        <div className="stopwatch-time">{seconds}</div>
-        { this.state.running ?
-          <button onClick={this.onStop}>Stop</button>
-          :
-          <button onClick={this.onStart}>Start</button>
-        }
-        <button onClick={this.onReset}>Reset</button>
-      </div>
-    );
+      return (
+        <div className="add-player-form">
+             <form onSubmit={this.onSubmit}>
+                <input type="text" value={this.state.name} onChange={this.onNameChange}/>
+                <input type="submit" value="Add Player"/>
+             </form>
+        </div>
+      );
   }
 });
 
-var AddPlayerForm = React.createClass({
-  propTypes: {
-    onAdd: React.PropTypes.func.isRequired,
-  },
 
-  getInitialState: function() {
-    return {
-      name: "",
-    };
-  },
+/*
+  create a statistics component - track number of players and points
+*/
 
-  onNameChange: function(e) {
-    this.setState({name: e.target.value});
-  },
+function Stats(props){
+    var totalPlayers = props.players.length;
+    var totalPoints = props.players.reduce(function(total, player){
+        return total + player.score;
+    },0);
 
-  onSubmit: function(e) {
-    e.preventDefault();
-
-    this.props.onAdd(this.state.name);
-    this.setState({name: ""});
-  },
-
-
-  render: function() {
     return (
-      <div className="add-player-form">
-        <form onSubmit={this.onSubmit}>
-          <input type="text" value={this.state.name} onChange={this.onNameChange} />
-          <input type="submit" value="Add Player" />
-        </form>
-      </div>
-    );
-  }
-});
-
-function Stats(props) {
-  var totalPlayers = props.players.length;
-  var totalPoints = props.players.reduce(function(total, player){
-    return total + player.score;
-  }, 0);
-
-  return (
-    <table className="stats">
-      <tbody>
-        <tr>
-          <td>Players:</td>
-          <td>{totalPlayers}</td>
-        </tr>
-        <tr>
-          <td>Total Points:</td>
-          <td>{totalPoints}</td>
-        </tr>
-      </tbody>
-    </table>
-  )
+     <table className="stats">
+        <tbody>
+            <tr>
+                <td>Players:</td>
+                <td>{totalPlayers}</td>
+            </tr>
+            <tr>
+                <td>Total Points:</td>
+                <td>{totalPoints}</td>
+            </tr>
+        </tbody>
+     </table>
+    )
 }
-
-Stats.propTypes = {
-  players: React.PropTypes.array.isRequired,
-};
 
 function Header(props) {
   return (
     <div className="header">
-      <Stats players={props.players}/>
+     <Stats players={props.players}/>
       <h1>{props.title}</h1>
-      <Stopwatch />
     </div>
   );
 }
@@ -155,26 +101,35 @@ Header.propTypes = {
   players: React.PropTypes.array.isRequired,
 };
 
-function Counter(props) {
-  return (
-    <div className="counter">
-      <button className="counter-action decrement" onClick={function() {props.onChange(-1);}} > - </button>
-      <div className="counter-score"> {props.score} </div>
-      <button className="counter-action increment" onClick={function() {props.onChange(1);}}> + </button>
-    </div>
-  );
+
+/* Revert the counter back into a functional component
+   and relocate the state up into the application
+
+   A stateless component
+*/
+
+function Counter(props){
+        return (
+            <div className="counter">
+              <button className="counter-action decrement" onClick={function() {props.onChange(-1);} }> - </button>
+              <div className="counter-score"> {props.score} </div>
+              <button className="counter-action increment" onClick={function() {props.onChange(+1);} }> + </button>
+            </div>
+      );
 }
 
+
+
 Counter.propTypes = {
-  score: React.PropTypes.number.isRequired,
-  onChange: React.PropTypes.func.isRequired,
+    score: React.PropTypes.number.isRequired,
+    onChange: React.PropTypes.func.isRequired,
 }
 
 function Player(props) {
   return (
     <div className="player">
       <div className="player-name">
-        <a className="remove-player" onClick={props.onRemove}>✖</a>
+          <a className="remove-player" onClick={props.onRemove}>&#x274C;</a>
         {props.name}
       </div>
       <div className="player-score">
@@ -192,72 +147,77 @@ Player.propTypes = {
 };
 
 
+/*
+Convert app back into a stateful component that holds app state
+    This is where we manage state, because players can Change
+*/
 
 var Application = React.createClass({
-  propTypes: {
-    title: React.PropTypes.string,
-    initialPlayers: React.PropTypes.arrayOf(React.PropTypes.shape({
-      name: React.PropTypes.string.isRequired,
-      score: React.PropTypes.number.isRequired,
-      id: React.PropTypes.number.isRequired,
-    })).isRequired,
-  },
+     propTypes: {
+      title: React.PropTypes.string,
+      initialPlayers: React.PropTypes.arrayOf(React.PropTypes.shape({
+        name: React.PropTypes.string.isRequired,
+        score: React.PropTypes.number.isRequired,
+        id: React.PropTypes.number.isRequired,
+      })).isRequired,
+    },
 
-  getDefaultProps: function() {
-    return {
-      title: "Scoreboard",
-    }
-  },
+    getDefaultProps: function() {
+        return  {
+            title: "Scoreboard",
+        }
+    },
 
-  getInitialState: function() {
-    return {
-      players: this.props.initialPlayers,
-    };
-  },
+    getInitialState: function() {
+        return {
+            players: this.props.initialPlayers,
+        };
+    },
 
-  onScoreChange: function(index, delta) {
-    this.state.players[index].score += delta;
-    this.setState(this.state);
-  },
+    onScoreChange: function(index,amountChanged){
+        console.log('onScoreChange', index, amountChanged);
+        this.state.players[index].score += amountChanged;
+        this.setState(this.state);
+    },
 
-  onPlayerAdd: function(name) {
-    this.state.players.push({
-      name: name,
-      score: 0,
-      id: nextId,
-    });
-    this.setState(this.state);
-    nextId += 1;
-  },
+    onPlayerAdd: function(name) {
+        console.log('Player added: ', name);
+        this.state.players.push({
+            name: name,
+            score: 0,
+            id: nextId,
+        });
+        this.setState(this.state);
+        nextId += 1;
+    },
 
-  onRemovePlayer: function(index) {
-    this.state.players.splice(index, 1);
-    this.setState(this.state);
-  },
+    onRemovePlayer: function(index){
+      this.state.players.splice(index, 1); // remove current item
+        this.setState(this.state);  // re-render
+    },
 
-  render: function() {
-    return (
-      <div className="scoreboard">
-        <Header title={this.props.title} players={this.state.players} />
+    render: function() {
+     return (
+        <div className="scoreboard">
+          <Header title={this.props.title} players={this.state.players}/>
 
-        <div className="players">
-          {this.state.players.map(function(player, index) {
-            return (
-              <Player
-                onScoreChange={function(delta) {this.onScoreChange(index ,delta)}.bind(this)}
-                onRemove={function() {this.onRemovePlayer(index)}.bind(this)}
-                name={player.name}
-                score={player.score}
-                key={player.id} />
+          <div className="players">
+            {this.state.players.map(function(player, index ) {
+              return (
+                <Player
+                    onScoreChange={function(amountChanged) {this.onScoreChange(index, amountChanged)}.bind(this)}
+                    onRemove={function() {this.onRemovePlayer(index)}.bind(this)}
+                    name={player.name}
+                    score={player.score}
+                    key={player.id} />
             );
-          }.bind(this))}
+            }.bind(this))}
+          </div>
+         <AddPlayerForm onAdd={this.onPlayerAdd}/>
         </div>
-        <AddPlayerForm onAdd={this.onPlayerAdd} />
-      </div>
-    );
-  }
+  );
+ }
 });
-
 
 
 ReactDOM.render(<Application initialPlayers={PLAYERS}/>, document.getElementById('container'));
